@@ -7,31 +7,49 @@ using System.Threading.Tasks;
 
 namespace BankOfBitsAndBytes
 {
+
+
     class Program
     {
         public delegate void delg();
+        public static bool reset;
 
         static void Main(string[] args)
         {
+            Program p = new Program();
             Semaphore sem = new Semaphore(2, 8);
             int pwLength = -1, inc = 0;
             int currentThreadIndex = 0, currentLetterIndex = 0;
+            int[] currentLetterIndex_array = new int[8];
             int currentBalance = 0;
             Thread[] threadPool = new Thread[8];
-
-            List<int[]> pwList = new List<int[]>();
-            foreach (Thread t in threadPool)
-            {
-
-            }
-
             BankOfBitsNBytes bbb = new BankOfBitsNBytes();
+
+
+            List<char[]> s = new List<char[]>();
+            List<int[]> pwList = new List<int[]>();
+
 
             while (FindLength(new char[inc], bbb) == -1)
             {
                 inc++;
                 pwLength = inc;
+                Console.Out.WriteLine("PW Length: " + pwLength);
             }
+
+
+
+            for (int i = 0; i < 8; i++)
+            {
+                s.Add(new char[pwLength]);
+                pwList.Add(new int[pwLength]);
+                currentLetterIndex_array[i] = currentLetterIndex;
+                currentLetterIndex++;
+            }
+
+
+
+
 
             Console.Out.WriteLine("pw length = " + pwLength);
 
@@ -41,38 +59,43 @@ namespace BankOfBitsAndBytes
             //    Thread t = new Thread(ts);                          //Create thread with threadstart
             //    t.Start();
             //}
-
+            reset = true;
             while (currentBalance < 1000000)
             {
-
-                for (int i = 0; i < threadPool.Length; i++)
+                if (reset)
                 {
-                    char[] s = new char[pwLength];
 
-                    List<delg> delgList = new List<delg>()
+                    for (int i = 0; i < threadPool.Length - 1; i++)
                     {
-                        () => IncrementPW(pwList.ElementAt(i), ref currentLetterIndex),
+                        int ii = i;
+                        List<delg> delgList = new List<delg>()
+                    {
+
                         () => {
                             for(int j = 0; j < pwLength; j++){
-                                s[j] += IntToChar(s[j]);
+                                char c = s[i].ElementAt(j);
+                                s[i].SetValue(IntToChar(pwList[i].ElementAt(j)), j);
                             }
                         },
-                        () => bbb.WithdrawMoney(s)
+                        () => bbb.WithdrawMoney(s[i]),
+                        () => IncrementPW(pwList.ElementAt(i), ref currentLetterIndex_array[i]),
+
                      };
 
+                        if (threadPool[i] == null || !threadPool[i].IsAlive)
+                        {
+                            ThreadStart ts = new ThreadStart(() => { p.DoPwCheck(delgList); });         //Create a thread start give
+                            threadPool[i] = new Thread(ts);                          //Create thread with threadstart
+                            threadPool[i].Start();
+                            currentLetterIndex_array[i]++;
+                        }
+                    }
+                    reset = false;
 
-                    ThreadStart ts = new ThreadStart(
-                        () => {
-                        
-}
-                        );     //Create a thread start give
-                    Thread t = new Thread(ts);                          //Create thread with threadstart
-                    t.Start();
-                    currentLetterIndex++;
                 }
 
 
-
+                Console.Out.WriteLine("Current dough: " + currentBalance);
 
             }
 
@@ -96,22 +119,36 @@ namespace BankOfBitsAndBytes
             Console.ReadLine();
         }
 
+        public void DoPwCheck(List<delg> delgList)
+        {
+            Stack<delg> stack = new Stack<delg>(delgList);
+            stack.Reverse();
+
+            while (stack.Count > 0)
+            {
+                stack.Pop().Invoke();
+            }
+
+        }
+
         public static void IncrementPW(int[] _pw, ref int currentFirstLetter)
         {
+            Console.Out.WriteLine("In IncrementPW");
+
             int l = _pw.Length;
             int decrement = 1;
             bool changed = false;
 
             while (!changed)
             {
-                if (!IntToChar(_pw[l - decrement]).Equals(BankOfBitsNBytes.acceptablePasswordChars.Length - 1))
+                if (!IntToChar(_pw[l - decrement]).Equals(BankOfBitsNBytes.acceptablePasswordChars[BankOfBitsNBytes.acceptablePasswordChars.Length - 1]))
                 {
                     _pw[l - decrement]++;
                     changed = true;
                 }
                 else
                 {
-                    if (decrement <= l)
+                    if (decrement < l)
                         _pw[l - decrement] = 0;
                     else
                     {
@@ -156,4 +193,6 @@ namespace BankOfBitsAndBytes
             t.Start();
         }
     }
+
+
 }
