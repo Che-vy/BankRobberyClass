@@ -13,7 +13,6 @@ namespace BankOfBitsAndBytes
     {
         public delegate void delg();
         public static bool reset;
-
         static void Main(string[] args)
         {
             Program p = new Program();
@@ -25,8 +24,8 @@ namespace BankOfBitsAndBytes
             Thread[] threadPool = new Thread[8];
             BankOfBitsNBytes bbb = new BankOfBitsNBytes();
 
-
             List<char[]> s = new List<char[]>();
+
             List<int[]> pwList = new List<int[]>();
 
 
@@ -43,6 +42,7 @@ namespace BankOfBitsAndBytes
             {
                 s.Add(new char[pwLength]);
                 pwList.Add(new int[pwLength]);
+                s[i][0] = BankOfBitsNBytes.acceptablePasswordChars[currentLetterIndex];
                 currentLetterIndex_array[i] = currentLetterIndex;
                 currentLetterIndex++;
             }
@@ -65,37 +65,40 @@ namespace BankOfBitsAndBytes
                 if (reset)
                 {
 
-                    for (int i = 0; i < threadPool.Length - 1; i++)
+                    for (int i = 0; i < threadPool.Length; i++)
                     {
+                        List<char[]> ss = s;
+
                         int ii = i;
                         List<delg> delgList = new List<delg>()
                     {
 
+                        () => bbb.WithdrawMoney(s[ii]),
                         () => {
                             for(int j = 0; j < pwLength; j++){
-                                char c = s[i].ElementAt(j);
-                                s[i].SetValue(IntToChar(pwList[i].ElementAt(j)), j);
+                                int jj = j;
+                                char c = s[ii].ElementAt(jj);
+                                s[ii].SetValue(IntToChar(pwList[ii].ElementAt(jj)), jj);
                             }
                         },
-                        () => bbb.WithdrawMoney(s[i]),
-                        () => IncrementPW(pwList.ElementAt(i), ref currentLetterIndex_array[i]),
+                        () => IncrementPW(pwList.ElementAt(ii), ref currentLetterIndex_array[ii], ss.ElementAt(ii), ii),
 
                      };
 
-                        if (threadPool[i] == null || !threadPool[i].IsAlive)
+                        if (threadPool[ii] == null || !threadPool[ii].IsAlive)
                         {
                             ThreadStart ts = new ThreadStart(() => { p.DoPwCheck(delgList); });         //Create a thread start give
-                            threadPool[i] = new Thread(ts);                          //Create thread with threadstart
-                            threadPool[i].Start();
-                            currentLetterIndex_array[i]++;
+                            threadPool[ii] = new Thread(ts);                          //Create thread with threadstart
+                            threadPool[ii].Start();
+                            currentLetterIndex_array[ii]++;
                         }
                     }
-                    reset = false;
+                    //reset = false;
 
                 }
 
 
-                Console.Out.WriteLine("Current dough: " + currentBalance);
+                //Console.WriteLine("Current dough: " + currentBalance);
 
             }
 
@@ -131,9 +134,11 @@ namespace BankOfBitsAndBytes
 
         }
 
-        public static void IncrementPW(int[] _pw, ref int currentFirstLetter)
+        public static void IncrementPW(int[] _pw, ref int currentFirstLetter, char[] pwres, int index)
         {
-            Console.Out.WriteLine("In IncrementPW");
+            string ggg = "";
+            foreach (char c in pwres) { ggg += c; }
+            Console.WriteLine("In IncrementPW" + ggg);
 
             int l = _pw.Length;
             int decrement = 1;
@@ -145,6 +150,7 @@ namespace BankOfBitsAndBytes
                 {
                     _pw[l - decrement]++;
                     changed = true;
+                    pwres[l - decrement] = BankOfBitsNBytes.acceptablePasswordChars[_pw[l - decrement]];
                 }
                 else
                 {

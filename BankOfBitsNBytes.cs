@@ -56,7 +56,7 @@ namespace BankOfBitsAndBytes
                 }
             }
 
-            Console.WriteLine("Attempting to withdraw money.");
+           // Console.WriteLine("Attempting to withdraw money.");
             return 0;
         }
 
