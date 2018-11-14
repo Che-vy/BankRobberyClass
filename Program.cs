@@ -43,6 +43,7 @@ namespace BankOfBitsAndBytes
                 s.Add(new char[pwLength]);
                 pwList.Add(new int[pwLength]);
                 s[i][0] = BankOfBitsNBytes.acceptablePasswordChars[currentLetterIndex];
+                pwList[i][0] = currentLetterIndex;
                 currentLetterIndex_array[i] = currentLetterIndex;
                 currentLetterIndex++;
             }
@@ -59,15 +60,28 @@ namespace BankOfBitsAndBytes
             //    Thread t = new Thread(ts);                          //Create thread with threadstart
             //    t.Start();
             //}
-            reset = true;
+
             while (currentBalance < 1000000)
             {
-                if (reset)
+                int startb = currentBalance;
+                reset = true;
+
+                for (int i = 0; i < 8; i++)
                 {
+                    s.Add(new char[pwLength]);
+                    pwList.Add(new int[pwLength]);
+                    s[i][0] = BankOfBitsNBytes.acceptablePasswordChars[currentLetterIndex];
+                    pwList[i][0] = currentLetterIndex;
+                    currentLetterIndex_array[i] = currentLetterIndex;
+                    currentLetterIndex++;
+                }
+                while (reset)
+                {
+                   
+                    List<char[]> ss = s;
 
                     for (int i = 0; i < threadPool.Length; i++)
                     {
-                        List<char[]> ss = s;
 
                         int ii = i;
                         List<delg> delgList = new List<delg>()
@@ -87,17 +101,18 @@ namespace BankOfBitsAndBytes
 
                         if (threadPool[ii] == null || !threadPool[ii].IsAlive)
                         {
+                            currentLetterIndex_array[ii]++;
                             ThreadStart ts = new ThreadStart(() => { p.DoPwCheck(delgList); });         //Create a thread start give
                             threadPool[ii] = new Thread(ts);                          //Create thread with threadstart
                             threadPool[ii].Start();
-                            currentLetterIndex_array[ii]++;
                         }
                     }
                     //reset = false;
 
+                    if (currentBalance > startb)
+                        reset = false;
+
                 }
-
-
                 //Console.WriteLine("Current dough: " + currentBalance);
 
             }
@@ -146,7 +161,7 @@ namespace BankOfBitsAndBytes
 
             while (!changed)
             {
-                if (!IntToChar(_pw[l - decrement]).Equals(BankOfBitsNBytes.acceptablePasswordChars[BankOfBitsNBytes.acceptablePasswordChars.Length - 1]))
+                if (decrement < l && !IntToChar(_pw[l - decrement]).Equals(BankOfBitsNBytes.acceptablePasswordChars[BankOfBitsNBytes.acceptablePasswordChars.Length - 1]))
                 {
                     _pw[l - decrement]++;
                     changed = true;
@@ -155,7 +170,10 @@ namespace BankOfBitsAndBytes
                 else
                 {
                     if (decrement < l)
+                    {
+                        decrement = 0;
                         _pw[l - decrement] = 0;
+                    }
                     else
                     {
                         _pw[l - decrement] = currentFirstLetter;

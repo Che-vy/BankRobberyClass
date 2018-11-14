@@ -14,7 +14,7 @@ namespace BankOfBitsAndBytes
 
         int moneyAmt = 5000;
         public char[] password;
-        private int passwordLength = 4;
+        private int passwordLength = 2;
         
 
         public BankOfBitsNBytes()
@@ -47,6 +47,17 @@ namespace BankOfBitsAndBytes
                 {
                     moneyAmt -= 500;
                     ResetPassword();
+                    Console.WriteLine("********** GOT 500 : " + new string(password) + " *********");
+                    Console.WriteLine("********** GOT 500 : " + new string(password) + " *********");
+                    Console.WriteLine("********** GOT 500 : " + new string(password) + " *********");
+                    Console.WriteLine("********** GOT 500 : " + new string(password) + " *********");
+                    Console.WriteLine("********** GOT 500 : " + new string(password) + " *********");
+                    Console.WriteLine("********** GOT 500 : " + new string(password) + " *********");
+                    Console.WriteLine("********** GOT 500 : " + new string(password) + " *********");
+                    Console.WriteLine("********** GOT 500 : " + new string(password) + " *********");
+                    Console.WriteLine("********** GOT 500 : " + new string(password) + " *********");
+                    Console.WriteLine("********** GOT 500 : " + new string(password) + " *********");
+                    Console.WriteLine("********** GOT 500 : " + new string(password) + " *********");
                     return 500;
                 }
                 else
